@@ -1,0 +1,37 @@
+#include <iostream>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+#include <pcl/common/io.h>
+#include <pcl/features/esf.h>
+
+
+
+
+int main(int, char** argv)
+{
+
+    std::string filename = "E://shijie database//downsampled//down-a14-s05-e02.pcd";
+	std::cout << "Reading " << filename << std::endl;
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
+
+	if(pcl::io::loadPCDFile<pcl::PointXYZRGB> (filename, *cloud) == -1) // load the file
+	{
+		PCL_ERROR ("Couldn't read file");
+		return -1;
+	}
+	std::cout << "points: " << cloud->points.size () <<std::endl;
+
+
+	
+  // Create the VFH estimation class, and pass the input dataset+normals to it
+  pcl::PointCloud<pcl::ESFSignature640>::Ptr descriptor(new pcl::PointCloud<pcl::ESFSignature640>);
+
+  pcl::ESFEstimation<pcl::PointXYZRGB, pcl::ESFSignature640> esf;
+  esf.setInputCloud(cloud);
+
+  esf.compute(*descriptor);
+
+  // vfhs->points.size () should be of size 1*
+  pcl::io::savePCDFileASCII("I://data//esf//esf-a14-e05-02.pcd", *descriptor);
+
+}
